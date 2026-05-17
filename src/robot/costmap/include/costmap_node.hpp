@@ -17,7 +17,7 @@ class CostmapNode : public rclcpp::Node {
 
     std::vector<std::vector<int>> costmap_;
 
-    rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr occ_grid_pub_;
+    rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr costmap_pub_;
     rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr lidar_sub_;
 
     const float resolution = 0.1;        //resolution in meters for each cell
