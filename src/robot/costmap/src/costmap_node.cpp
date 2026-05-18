@@ -7,6 +7,7 @@
 CostmapNode::CostmapNode() : Node("costmap"), costmap_core_(robot::CostmapCore(this->get_logger())) {
   // Initialize the constructs and their parameters
     lidar_sub_ = this->create_subscription<sensor_msgs::msg::LaserScan>("/lidar", 10, std::bind(&CostmapNode::laserCallback, this, std::placeholders::_1));
+    odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("/odom/filtered", 10, std::bind(&CostmapNode::odomCallback, this, std::placeholders::_1));
     costmap_pub_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("/costmap",10);
 }
  
@@ -36,8 +37,8 @@ void CostmapNode::laserCallback(const sensor_msgs::msg::LaserScan::SharedPtr sca
             continue; //basically skipping the reading if it's invalid
         }
         //distance*angle to find the x,y coordinates, then adds to the origin to show the point assuming origin is where car is at for its own scan
-        int x = static_cast<int>((range*std::sin(angle))/resolution)+origin;
-        int y = static_cast<int>((range*std::cos(angle))/resolution)+origin;
+        int x = static_cast<int>((range*std::cos(angle))/resolution)+origin;
+        int y = static_cast<int>((range*std::sin(angle))/resolution)+origin;
 
         if (x<0 || x>=range_size||y<0||y>=range_size){
             continue; //like the if statement above, skipping if the x and y are out of bounds
@@ -63,21 +64,30 @@ void CostmapNode::laserCallback(const sensor_msgs::msg::LaserScan::SharedPtr sca
         }
 
     }
-    publishCostmap(range_size, origin, resolution); //finished building grid, now publish and sending it
+    publishCostmap(range_size, origin, resolution, scan); //finished building grid, now publish and sending it
 
+}
+
+void CostmapNode::odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
+    robot_x_ = msg->pose.pose.position.x;
+    robot_y_ = msg->pose.pose.position.y;
 }
 
 void CostmapNode::publishCostmap(int width, int origin, float resolution){
     nav_msgs::msg::OccupancyGrid grid;
-    grid.header.stamp= this->now(); //when this was made and what coordinate frame
-    grid.header.frame_id = "sim_world";
+    grid.header.stamp= scan->header.stamp; //when this was made and what coordinate frame
+    grid.header.frame_id = scan->header.frame_id;
     grid.info.resolution = resolution;
     grid.info.width = width;
     grid.info.height = width; //square grid
-    
-    //since robot is in center according to grid cells, but technically position 0 irl. this chnages for irl to meters as well
-    grid.info.origin.position.x = -static_cast<double>(origin) * resolution;
-    grid.info.origin.position.y = -static_cast<double>(origin) * resolution;
+
+    // CRITICAL: the grid origin must shift with the robot. The lidar data is
+    // robot-centric (cell `origin` is always "where the robot is"), so to make
+    // each obstacle cell land at its true world coordinate, the grid's bottom-left
+    // corner has to live at (robot_world_pos - origin*resolution). With a fixed
+    // origin the cells would slide across the screen as the robot moves.
+    grid.info.origin.position.x =  - static_cast<double>(origin) * resolution;
+    grid.info.origin.position.y =  - static_cast<double>(origin) * resolution;
     grid.info.origin.position.z = 0.0;
 
     //flattens out the grid from 2d to 1d for ROS
