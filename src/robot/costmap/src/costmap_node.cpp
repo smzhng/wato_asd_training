@@ -81,11 +81,6 @@ void CostmapNode::publishCostmap(int width, int origin, float resolution, const 
     grid.info.width = width;
     grid.info.height = width; //square grid
 
-    // CRITICAL: the grid origin must shift with the robot. The lidar data is
-    // robot-centric (cell `origin` is always "where the robot is"), so to make
-    // each obstacle cell land at its true world coordinate, the grid's bottom-left
-    // corner has to live at (robot_world_pos - origin*resolution). With a fixed
-    // origin the cells would slide across the screen as the robot moves.
     grid.info.origin.position.x =  - static_cast<double>(origin) * resolution;
     grid.info.origin.position.y =  - static_cast<double>(origin) * resolution;
     grid.info.origin.position.z = 0.0;
