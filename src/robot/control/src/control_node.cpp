@@ -31,20 +31,17 @@ ControlNode::ControlNode() : rclcpp::Node("pure_pursuit_controller") {
 }
 
 void ControlNode::controlLoop() {
-    if (!current_path_ || !robot_odom_) {
-        return;
-    }
-
-    if (current_path_->poses.empty()) {
-        cmd_vel_pub_->publish(geometry_msgs::msg::Twist());
+    // If no active path, stay silent so teleop commands can pass through.
+    // The control node should only touch /cmd_vel while actively following a goal.
+    if (!current_path_ || !robot_odom_ || current_path_->poses.empty()) {
         return;
     }
 
     auto &goal = current_path_->poses.back().pose.position;
     auto &robot_pos = robot_odom_->pose.pose.position;
     if (computeDistance(robot_pos, goal) <= goal_tolerance_) {
-        cmd_vel_pub_->publish(geometry_msgs::msg::Twist());
-        current_path_->poses.clear();
+        cmd_vel_pub_->publish(geometry_msgs::msg::Twist());  // stop ONCE
+        current_path_.reset();                                // release the path → next ticks early-return
         RCLCPP_INFO(this->get_logger(), "Goal reached!");
         return;
     }
