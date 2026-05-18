@@ -5,9 +5,8 @@
 
 ControlNode::ControlNode() : rclcpp::Node("pure_pursuit_controller") {
     // Balanced for 2 m/s on a 100 ms control loop:
-    //   distance per tick = 2.0 m/s * 0.1 s = 0.2 m
-    //   goal_tolerance is ~2.5x that, so the robot has enough room to stop without overshooting
-    //   lookahead is 4x goal_tolerance so it aims past the goal until it's close
+    //distance per tick = 2.0 m/s * 0.1 s = 0.2 m
+    // goal_tolerance is ~2.5x that, so the robot has enough room to stop without overshootin lookahead is 4x goal_tolerance so it aims past the goal until it's close
     linear_speed_ = 2.0;         // forward speed (m/s)
     goal_tolerance_ = 0.5;       // stop within 50 cm of the goal
     lookahead_distance_ = 2.0;   // aim 2 m ahead along the path
@@ -31,8 +30,7 @@ ControlNode::ControlNode() : rclcpp::Node("pure_pursuit_controller") {
 }
 
 void ControlNode::controlLoop() {
-    // If no active path, stay silent so teleop commands can pass through.
-    // The control node should only touch /cmd_vel while actively following a goal.
+
     if (!current_path_ || !robot_odom_ || current_path_->poses.empty()) {
         return;
     }
