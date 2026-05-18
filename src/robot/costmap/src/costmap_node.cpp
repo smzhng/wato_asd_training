@@ -70,7 +70,7 @@ void CostmapNode::laserCallback(const sensor_msgs::msg::LaserScan::SharedPtr sca
 void CostmapNode::publishCostmap(int width, int origin, float resolution){
     nav_msgs::msg::OccupancyGrid grid;
     grid.header.stamp= this->now(); //when this was made and what coordinate frame
-    grid.header.frame_id = "map";
+    grid.header.frame_id = "sim_world";
     grid.info.resolution = resolution;
     grid.info.width = width;
     grid.info.height = width; //square grid
