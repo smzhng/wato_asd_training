@@ -43,7 +43,7 @@ nav_msgs::msg::Path PlannerCore::planPath(
     const geometry_msgs::msg::PointStamped& goal)
 {
     nav_msgs::msg::Path path;
-    path.header.frame_id = "map";
+    path.header.frame_id = "sim_world";
 
     CellIndex start = worldToGrid(robot_pose.position.x, robot_pose.position.y, map);
     CellIndex goal_cell = worldToGrid(goal.point.x, goal.point.y, map);
