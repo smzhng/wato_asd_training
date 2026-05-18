@@ -90,7 +90,7 @@ void MapMemoryNode::integrateCostmap() {
 void MapMemoryNode::publishMap() {
   nav_msgs::msg::OccupancyGrid map;
   map.header.stamp = this->now();
-  map.header.frame_id = "sim_world";
+  map.header.frame_id = "map";
   map.info.resolution = RESOLUTION;
   map.info.width = MAP_SIZE;
   map.info.height = MAP_SIZE;
