@@ -2,8 +2,7 @@
 #include <memory>
 #include <cmath>
 
-ControlNode::ControlNode(): Node("control") {    
-    
+ControlNode::ControlNode(): Node("control") {
     path_sub_ = this->create_subscription<nav_msgs::msg::Path>("/path", 10, std::bind(&ControlNode::pathCallback, this, std::placeholders::_1));
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("/odom/filtered", 10, std::bind(&ControlNode::odomCallback, this, std::placeholders::_1));
     cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
@@ -29,7 +28,6 @@ void ControlNode::timerCallback() {
     return;
   }
 
-  // Check if robot has reached the final waypoint
   auto &goal = current_path_->poses.back().pose.position;
   auto &robot_pos = robot_odom_->pose.pose.position;
   if (computeDistance(robot_pos, goal) <= goal_tolerance_) {
@@ -48,7 +46,6 @@ void ControlNode::timerCallback() {
   cmd_vel_pub_->publish(computeVelocity(*lookahead));
 }
 
-// Walk the path and return the first waypoint far enough ahead
 std::optional<geometry_msgs::msg::PoseStamped> ControlNode::findLookaheadPoint() {
   auto &robot_pos = robot_odom_->pose.pose.position;
   for (const auto &pose : current_path_->poses) {
@@ -75,7 +72,7 @@ geometry_msgs::msg::Twist ControlNode::computeVelocity(const geometry_msgs::msg:
 
   geometry_msgs::msg::Twist cmd;
   cmd.linear.x  = linear_speed_;
-  cmd.angular.z = 2.0 * angle_error; // proportional: bigger error = sharper turn
+  cmd.angular.z = 2.0 * angle_error; //bigger error = sharper turn
   return cmd;
 }
 
