@@ -42,6 +42,7 @@ private:
   double last_update_y_{0.0};
   bool costmap_received_{false};
   bool should_update_{false};
+  bool first_update_{true};  // prevents publishing an empty map before any costmap arrives
 
   // Methods
   void costmapCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg);
