@@ -4,9 +4,13 @@
 #include <chrono>
 
 ControlNode::ControlNode() : rclcpp::Node("pure_pursuit_controller") {
-    lookahead_distance_ = 2.0;   // look further ahead for smoother arcs at high speed
-    goal_tolerance_ = 0.1;       // stop within 10 cm of the goal
+    // Balanced for 2 m/s on a 100 ms control loop:
+    //   distance per tick = 2.0 m/s * 0.1 s = 0.2 m
+    //   goal_tolerance is ~2.5x that, so the robot has enough room to stop without overshooting
+    //   lookahead is 4x goal_tolerance so it aims past the goal until it's close
     linear_speed_ = 2.0;         // forward speed (m/s)
+    goal_tolerance_ = 0.5;       // stop within 50 cm of the goal
+    lookahead_distance_ = 2.0;   // aim 2 m ahead along the path
 
     path_sub_ = this->create_subscription<nav_msgs::msg::Path>(
         "/path", 10,
