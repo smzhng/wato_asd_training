@@ -25,7 +25,7 @@ class ControlNode : public rclcpp::Node {
 
     double lookahead_distance_ = 1.0;
     double goal_tolerance_ = 0.5;
-    double linear_speed_ = 0.5;
+    double linear_speed_ = 2.0;
 
     void pathCallback(const nav_msgs::msg::Path::SharedPtr msg);
     void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg);
