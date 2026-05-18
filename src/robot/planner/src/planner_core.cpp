@@ -6,16 +6,22 @@ namespace robot {
 PlannerCore::PlannerCore(const rclcpp::Logger& logger) : logger_(logger) {}
 
 CellIndex PlannerCore::worldToGrid(double wx, double wy, const nav_msgs::msg::OccupancyGrid& map) {
-    int x = static_cast<int>((wx - map.info.origin.position.x) / map.info.resolution);
-    int y = static_cast<int>((wy - map.info.origin.position.y) / map.info.resolution);
+    double res = map.info.resolution;
+    int width = map.info.width;
+    int height = map.info.height;
+    int x = static_cast<int>(std::floor(wx / res + width / 2.0));
+    int y = static_cast<int>(std::floor(-wy / res + height / 2.0));
     return CellIndex(x, y);
 }
 
 geometry_msgs::msg::PoseStamped PlannerCore::gridToWorld(int x, int y, const nav_msgs::msg::OccupancyGrid& map) {
+    double res = map.info.resolution;
+    int width = map.info.width;
+    int height = map.info.height;
     geometry_msgs::msg::PoseStamped pose;
     pose.header.frame_id = "map";
-    pose.pose.position.x = x * map.info.resolution + map.info.origin.position.x;
-    pose.pose.position.y = y * map.info.resolution + map.info.origin.position.y;
+    pose.pose.position.x = (x - width / 2.0 + 0.5) * res;
+    pose.pose.position.y = -(y - height / 2.0 + 0.5) * res;
     pose.pose.orientation.w = 1.0;
     return pose;
 }
