@@ -21,7 +21,7 @@ class CostmapNode : public rclcpp::Node {
     rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr lidar_sub_;
 
     const float resolution = 0.1;        //resolution in meters for each cell
-    const float inflation_radius = 2.0;  // danger zone around obstacles = 2 meters
+    const float inflation_radius = 0.3;  // danger zone around obstacles = 2 meters
     const int occupied = 100;            // cost value for an obstacle cell
 
     void laserCallback(const sensor_msgs::msg::LaserScan::SharedPtr scan);
