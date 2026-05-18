@@ -94,10 +94,13 @@ void MapMemoryNode::publishMap() {
   map.info.resolution = RESOLUTION;
   map.info.width = MAP_SIZE;
   map.info.height = MAP_SIZE;
-  map.info.origin.position.x = robot_x_;
-  map.info.origin.position.y = robot_y_;
-  map.info.origin.position.z = 0;
-  map.info.origin.orientation = orientation_;
+  // Fixed origin: cell (0,0) of the global grid sits at world (-20, -20).
+  // This keeps the map anchored to the world frame regardless of where the robot is,
+  // so Foxglove draws it in the correct location every time.
+  map.info.origin.position.x = -(MAP_SIZE / 2.0) * RESOLUTION;  // -20 m
+  map.info.origin.position.y = -(MAP_SIZE / 2.0) * RESOLUTION;  // -20 m
+  map.info.origin.position.z = 0.0;
+  // No orientation — the global map is always axis-aligned with the world frame.
 
   map.data.resize(MAP_SIZE * MAP_SIZE, 0);
   for (int i = 0; i < MAP_SIZE; i++) {
@@ -111,6 +114,14 @@ void MapMemoryNode::publishMap() {
 
 void MapMemoryNode::updateMap() {
   if (!should_update_ || !costmap_received_) return;
+
+  // Skip the very first update — the global map is empty and publishing it would
+  // give the planner an all-zeros map before any real obstacles are integrated.
+  if (first_update_) {
+    first_update_ = false;
+    costmap_received_ = false;
+    return;
+  }
 
   integrateCostmap();
   publishMap();
