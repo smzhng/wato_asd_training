@@ -73,7 +73,7 @@ void CostmapNode::odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
     robot_y_ = msg->pose.pose.position.y;
 }
 
-void CostmapNode::publishCostmap(int width, int origin, float resolution){
+void CostmapNode::publishCostmap(int width, int origin, float resolution, const sensor_msgs::msg::LaserScan::SharedPtr &scan){
     nav_msgs::msg::OccupancyGrid grid;
     grid.header.stamp= scan->header.stamp; //when this was made and what coordinate frame
     grid.header.frame_id = scan->header.frame_id;
