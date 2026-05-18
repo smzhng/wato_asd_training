@@ -76,8 +76,8 @@ void MapMemoryNode::integrateCostmap() {
       double relative_x = local_center_x - j;
       double relative_y = local_center_y - i;
 
-      int map_x = global_center + (int)(-relative_y * cosa - relative_x * sina) + (int)(robot_x_ / RESOLUTION);
-      int map_y = global_center + (int)(-relative_y * sina + relative_x * cosa) - (int)(robot_y_ / RESOLUTION);
+      int map_x = global_center + (int)(-relative_x * cosa - relative_y * sina) + (int)(robot_x_ / RESOLUTION);
+      int map_y = global_center + (int)(-relative_x * sina + relative_y * cosa) - (int)(robot_y_ / RESOLUTION);
 
       if (map_x >= 0 && map_x < MAP_SIZE && map_y >= 0 && map_y < MAP_SIZE &&
           cost_map_2D[i][j] > global_map_[map_y][map_x]) {
